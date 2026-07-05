@@ -1,0 +1,16 @@
+<section class="grid">
+    <% rooms.forEach(r => { %>
+        <article class="card">
+            <h3>Room <%= r.number %> — <%= r.type %></h3>
+            <p>Capacity: <%= r.capacity %> · ₹<%= r.price_per_night %>/night</p>
+            <% if (session && session.customer) { %>
+                <a class="btn" href="/book?room_id=<%= r.id %>">Book</a>
+            <% } else { %>
+                <a class="btn" href="/customer/login?redirect=/book&room_id=<%= r.id %>" style="opacity: 0.7; cursor: pointer;">Login to Book</a>
+                <p class="muted" style="margin-top: 8px; font-size: 12px;">You must be logged in to book a room</p>
+            <% } %>
+        </article>
+    <% }) %>
+</section>
+
+

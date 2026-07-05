@@ -1,0 +1,72 @@
+<section class="hero hero-book">
+    <div class="hero-content">
+        <h1>Reserve your stay</h1>
+        <p class="muted">Pay now to confirm your reservation. Send amount to <strong>9384180232</strong> and submit the transaction ID and payment proof below.</p>
+    </div>
+    <div class="hero-overlay"></div>
+</section>
+
+<section class="grid two">
+    <article class="card">
+        <h2>Book a Room</h2>
+        <% if (typeof error !== 'undefined') { %>
+            <p class="error"><%= error %></p>
+        <% } %>
+        <form method="post" action="/book" enctype="multipart/form-data" class="form-grid" id="booking-form">
+            <label>
+                Full name
+                <input required name="name" value="<%= form?.name || '' %>">
+            </label>
+            <label>
+                Email
+                <input type="email" name="email" value="<%= form?.email || '' %>">
+            </label>
+            <label>
+                Phone
+                <input type="tel" name="phone" placeholder="e.g. +1 555 123 4567" value="<%= form?.phone || '' %>">
+            </label>
+            <label>
+                Room
+                <select name="room_id" id="room_id" required>
+                    <option value="">Select a room</option>
+                    <% (rooms || []).forEach(r => { %>
+                        <option data-price="<%= r.price_per_night %>" value="<%= r.id %>" <%= String(form?.room_id || query.room_id || '')===String(r.id)?'selected':'' %>>
+                            Room <%= r.number %> — <%= r.type %> • <%= r.capacity %>p • ₹<%= r.price_per_night %>/night
+                        </option>
+                    <% }) %>
+                </select>
+            </label>
+            <label>
+                Check-in
+                <input type="date" required name="check_in" id="check_in" value="<%= form?.check_in || '' %>">
+            </label>
+            <label>
+                Check-out
+                <input type="date" required name="check_out" id="check_out" value="<%= form?.check_out || '' %>">
+            </label>
+            <label>
+                Transaction ID
+                <input required name="payment_txn_id" placeholder="Reference / UTR / Txn ID" value="<%= form?.payment_txn_id || '' %>">
+            </label>
+            <label>
+                Upload payment proof (image)
+                <input required type="file" name="payment_proof" accept="image/*">
+            </label>
+            <div>
+                <button class="btn" type="submit">Confirm Booking</button>
+            </div>
+        </form>
+    </article>
+
+    <aside class="card">
+        <h3>Price estimator</h3>
+        <p class="muted">Pay the estimated total to <strong>9384180232</strong>. Keep your transaction ID and upload a clear screenshot.</p>
+        <div class="row"><span>Nights</span><strong id="est_nights">0</strong></div>
+        <div class="row"><span>Price/night</span><strong>₹<span id="est_price">0</span></strong></div>
+        <div class="row"><span>Total</span><strong>₹<span id="est_total">0</span></strong></div>
+    </aside>
+</section>
+
+<script src="/static/js/booking.js"></script>
+
+

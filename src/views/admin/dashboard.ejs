@@ -1,0 +1,589 @@
+<style>
+    .admin-tabs {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 0;
+    }
+    .admin-tab {
+        padding: 12px 12px;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: -2px;
+        white-space: nowrap;
+    }
+    .admin-tab:hover {
+        color: var(--text);
+    }
+    .admin-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .stat-card {
+        background: var(--elev);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+    }
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 8px 0;
+    }
+    .stat-label {
+        color: var(--muted);
+        font-size: 14px;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-success { background: rgba(94, 234, 212, 0.2); color: var(--accent); }
+    .badge-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .badge-danger { background: rgba(251, 113, 133, 0.2); color: var(--danger); }
+    .badge-info { background: rgba(106, 160, 255, 0.2); color: var(--primary); }
+    
+    /* Admin table fixes - FORCE horizontal text display with proper widths */
+    .admin-table {
+        table-layout: fixed !important;
+        width: auto;
+        min-width: max-content; /* Allow table to be wider than container */
+    }
+    .admin-table th,
+    .admin-table td {
+        padding: 10px 8px !important;
+        vertical-align: middle !important;
+        writing-mode: horizontal-tb !important; /* Force horizontal text */
+        text-orientation: mixed !important; /* Normal text orientation */
+        direction: ltr !important; /* Left to right */
+        white-space: nowrap !important; /* Prevent text from wrapping to new lines */
+        word-break: keep-all !important; /* Keep words together */
+        line-height: 1.5 !important;
+    }
+    /* Customers table - slightly more padding for better readability */
+    #tab-customers .admin-table th,
+    #tab-customers .admin-table td {
+        padding: 12px 10px !important;
+    }
+    /* Force all text content to be horizontal - no vertical stacking */
+    .admin-table th *,
+    .admin-table td * {
+        writing-mode: horizontal-tb !important;
+        text-orientation: mixed !important;
+        white-space: normal !important; /* Allow normal wrapping within content */
+    }
+    /* Keep badges on one line */
+    .admin-table .badge {
+        white-space: nowrap !important;
+        display: inline-block !important;
+        writing-mode: horizontal-tb !important;
+    }
+    /* Allow wrapping ONLY for address field but keep horizontal */
+    .admin-table td.wrap,
+    .admin-table th.wrap {
+        white-space: normal !important; /* Allow wrapping for long addresses */
+        word-break: break-word !important;
+        writing-mode: horizontal-tb !important;
+        max-width: 250px;
+        min-width: 150px;
+    }
+    /* Ensure table wrapper allows horizontal scroll */
+    .admin-table-wrap {
+        overflow-x: auto !important;
+        overflow-y: visible;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        padding: 0;
+    }
+    /* Set proper minimum column widths - Customers table - PROFESSIONAL SPACING */
+    #tab-customers .admin-table th:nth-child(1), #tab-customers .admin-table td:nth-child(1) { width: 50px; min-width: 50px; max-width: 50px; white-space: nowrap; } /* ID */
+    #tab-customers .admin-table th:nth-child(2), #tab-customers .admin-table td:nth-child(2) { width: 140px; min-width: 140px; max-width: 140px; white-space: nowrap; } /* Name */
+    #tab-customers .admin-table th:nth-child(3), #tab-customers .admin-table td:nth-child(3) { width: 130px; min-width: 130px; max-width: 130px; white-space: nowrap; } /* Username */
+    #tab-customers .admin-table th:nth-child(4), #tab-customers .admin-table td:nth-child(4) { width: 240px; min-width: 240px; max-width: 240px; white-space: nowrap; } /* Email - increased for better spacing */
+    #tab-customers .admin-table th:nth-child(5), #tab-customers .admin-table td:nth-child(5) { width: 120px; min-width: 120px; max-width: 120px; white-space: nowrap; } /* Phone */
+    #tab-customers .admin-table th:nth-child(6), #tab-customers .admin-table td:nth-child(6) { width: 140px; min-width: 140px; max-width: 140px; white-space: nowrap; } /* Aadhar */
+    #tab-customers .admin-table th:nth-child(7), #tab-customers .admin-table td:nth-child(7) { width: 160px; min-width: 160px; max-width: 160px; } /* Address */
+    #tab-customers .admin-table th:nth-child(8), #tab-customers .admin-table td:nth-child(8) { width: 120px; min-width: 120px; max-width: 120px; white-space: nowrap; } /* Bookings */
+    #tab-customers .admin-table th:nth-child(9), #tab-customers .admin-table td:nth-child(9) { width: 100px; min-width: 100px; max-width: 100px; white-space: nowrap; } /* Status */
+    #tab-customers .admin-table th:nth-child(10), #tab-customers .admin-table td:nth-child(10) { width: 110px; min-width: 110px; max-width: 110px; white-space: nowrap; } /* Joined */
+    
+    /* Reservations table - TIGHT SPACING */
+    #tab-reservations .admin-table th:nth-child(1), #tab-reservations .admin-table td:nth-child(1) { width: 45px; min-width: 45px; max-width: 45px; white-space: nowrap; }
+    #tab-reservations .admin-table th:nth-child(2), #tab-reservations .admin-table td:nth-child(2) { width: 160px; min-width: 160px; max-width: 160px; }
+    #tab-reservations .admin-table th:nth-child(3), #tab-reservations .admin-table td:nth-child(3) { width: 100px; min-width: 100px; max-width: 100px; }
+    #tab-reservations .admin-table th:nth-child(4), #tab-reservations .admin-table td:nth-child(4) { width: 100px; min-width: 100px; max-width: 100px; }
+    #tab-reservations .admin-table th:nth-child(5), #tab-reservations .admin-table td:nth-child(5) { width: 95px; min-width: 95px; max-width: 95px; white-space: nowrap; }
+    #tab-reservations .admin-table th:nth-child(6), #tab-reservations .admin-table td:nth-child(6) { width: 95px; min-width: 95px; max-width: 95px; white-space: nowrap; }
+    #tab-reservations .admin-table th:nth-child(7), #tab-reservations .admin-table td:nth-child(7) { width: 85px; min-width: 85px; max-width: 85px; white-space: nowrap; }
+    #tab-reservations .admin-table th:nth-child(8), #tab-reservations .admin-table td:nth-child(8) { width: 150px; min-width: 150px; max-width: 150px; }
+    #tab-reservations .admin-table th:nth-child(9), #tab-reservations .admin-table td:nth-child(9) { width: 100px; min-width: 100px; max-width: 100px; white-space: nowrap; }
+    
+    /* Rooms table */
+    #tab-rooms .admin-table th:nth-child(1), #tab-rooms .admin-table td:nth-child(1) { min-width: 100px; white-space: nowrap; }
+    #tab-rooms .admin-table th:nth-child(2), #tab-rooms .admin-table td:nth-child(2) { min-width: 120px; white-space: nowrap; }
+    #tab-rooms .admin-table th:nth-child(3), #tab-rooms .admin-table td:nth-child(3) { min-width: 100px; white-space: nowrap; }
+    #tab-rooms .admin-table th:nth-child(4), #tab-rooms .admin-table td:nth-child(4) { min-width: 200px; white-space: nowrap; }
+    #tab-rooms .admin-table th:nth-child(5), #tab-rooms .admin-table td:nth-child(5) { min-width: 120px; white-space: nowrap; }
+    #tab-rooms .admin-table th:nth-child(6), #tab-rooms .admin-table td:nth-child(6) { min-width: 100px; white-space: nowrap; }
+    
+    /* Staff table */
+    #tab-staff .admin-table th:nth-child(1), #tab-staff .admin-table td:nth-child(1) { min-width: 150px; white-space: nowrap; }
+    #tab-staff .admin-table th:nth-child(2), #tab-staff .admin-table td:nth-child(2) { min-width: 120px; white-space: nowrap; }
+    #tab-staff .admin-table th:nth-child(3), #tab-staff .admin-table td:nth-child(3) { min-width: 120px; white-space: nowrap; }
+    #tab-staff .admin-table th:nth-child(4), #tab-staff .admin-table td:nth-child(4) { min-width: 100px; white-space: nowrap; }
+    #tab-staff .admin-table th:nth-child(5), #tab-staff .admin-table td:nth-child(5) { min-width: 120px; white-space: nowrap; }
+</style>
+
+<div class="admin-tabs">
+    <button class="admin-tab active" onclick="showTab('overview')">Overview</button>
+    <button class="admin-tab" onclick="showTab('customers')">Customers</button>
+    <button class="admin-tab" onclick="showTab('reservations')">Reservations</button>
+    <button class="admin-tab" onclick="showTab('rooms')">Rooms</button>
+    <button class="admin-tab" onclick="showTab('staff')">Staff</button>
+    <button class="admin-tab" onclick="showTab('performance')">Performance</button>
+</div>
+
+<!-- Overview Tab -->
+<div id="tab-overview" class="tab-content active">
+    <section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="stat-card">
+            <div class="stat-label">Total Customers</div>
+            <div class="stat-value"><%= customers.length %></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Rooms</div>
+            <div class="stat-value"><%= rooms.length %></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Reservations</div>
+            <div class="stat-value"><%= reservations.filter(r => ['booked', 'checked_in'].includes(r.status)).length %></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Staff</div>
+            <div class="stat-value"><%= staff.length %></div>
+        </div>
+    </section>
+
+    <section class="grid two">
+        <article class="card">
+            <div class="section-header">
+                <h3>Recent Customers</h3>
+            </div>
+            <% if (customers.length === 0) { %>
+                <p class="muted">No registered customers yet.</p>
+            <% } else { %>
+                <div class="table-wrap">
+                    <table class="table table-compact">
+                        <thead>
+                            <tr><th>Name</th><th>Username</th><th>Email</th><th>Bookings</th></tr>
+                        </thead>
+                        <tbody>
+                            <% customers.slice(0, 5).forEach(c => { %>
+                                <tr>
+                                    <td><%= c.name %></td>
+                                    <td><span class="badge badge-info"><%= c.username %></span></td>
+                                    <td><%= c.email %></td>
+                                    <td><%= c.total_bookings || 0 %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </article>
+
+        <article class="card">
+            <div class="section-header">
+                <h3>Recent Reservations</h3>
+            </div>
+            <% if (reservations.length === 0) { %>
+                <p class="muted">No reservations yet.</p>
+            <% } else { %>
+                <div class="table-wrap">
+                    <table class="table table-compact">
+                        <thead>
+                            <tr><th>#</th><th>Guest</th><th>Room</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <% reservations.slice(0, 5).forEach(r => { %>
+                                <tr>
+                                    <td><%= r.id %></td>
+                                    <td><%= r.customer_name %></td>
+                                    <td><%= r.room_number %></td>
+                                    <td>
+                                        <span class="badge <%= r.status === 'checked_in' ? 'badge-success' : r.status === 'booked' ? 'badge-warning' : 'badge-info' %>">
+                                            <%= r.status %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } %>
+        </article>
+    </section>
+</div>
+
+<!-- Customers Tab -->
+<div id="tab-customers" class="tab-content">
+    <section class="card">
+        <div class="section-header">
+            <h3>Registered Customers</h3>
+            <span class="muted"><%= customers.length %> total</span>
+        </div>
+        <% if (customers.length === 0) { %>
+            <p class="muted">No registered customers yet.</p>
+        <% } else { %>
+            <div class="admin-table-wrap">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">ID</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Name</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Username</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Email</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Phone</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Aadhar</th>
+                            <th class="wrap" style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Address</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Bookings</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Status</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% customers.forEach(c => { %>
+                            <tr>
+                                <td style="white-space: nowrap !important;"><%= c.id %></td>
+                                <td style="white-space: nowrap !important;"><strong><%= c.name %></strong></td>
+                                <td style="white-space: nowrap !important;"><span class="badge badge-info"><%= c.username %></span></td>
+                                <td style="white-space: nowrap !important;"><%= c.email %></td>
+                                <td style="white-space: nowrap !important;"><%= c.phone %></td>
+                                <td class="muted" style="white-space: nowrap !important;"><%= c.aadhar %></td>
+                                <td class="muted wrap" style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;"><%= c.address || '-' %></td>
+                                <td style="writing-mode: horizontal-tb !important; white-space: nowrap !important;">
+                                    <span class="badge badge-success"><%= c.total_bookings || 0 %></span>
+                                    <% if (c.active_bookings > 0) { %>
+                                        <span class="badge badge-warning" style="margin-left: 4px;"><%= c.active_bookings %> active</span>
+                                    <% } %>
+                                </td>
+                                <td style="writing-mode: horizontal-tb !important; white-space: nowrap !important;">
+                                    <span class="badge <%= c.active ? 'badge-success' : 'badge-danger' %>">
+                                        <%= c.active ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </td>
+                                <td class="muted" style="font-size: 12px; writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap !important;"><%= new Date(c.created_at).toLocaleDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </section>
+</div>
+
+<!-- Reservations Tab -->
+<div id="tab-reservations" class="tab-content">
+    <section class="card">
+        <div class="section-header">
+            <h3>All Reservations</h3>
+            <span class="muted"><%= reservations.length %> total</span>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">#</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Guest Details</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Account</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Room</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;">Check-in</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;">Check-out</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Status</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Payment</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Actions</th>
+                        </tr>
+                    </thead>
+                <tbody>
+                    <% reservations.forEach(rv => { %>
+                        <tr>
+                            <td><strong>#<%= rv.id %></strong></td>
+                            <td>
+                                <strong><%= rv.customer_name %></strong><br>
+                                <span class="muted" style="font-size: 12px;">
+                                    <%= rv.customer_email || '' %><%= rv.customer_email && rv.customer_phone ? ' · ' : '' %><%= rv.customer_phone || '' %>
+                                </span>
+                            </td>
+                            <td>
+                                <% if (rv.customer_id) { %>
+                                    <span class="badge badge-success">Registered</span><br>
+                                    <span class="muted" style="font-size: 11px;"><%= rv.customer_username %></span>
+                                <% } else { %>
+                                    <span class="badge badge-warning">Guest</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <strong>Room <%= rv.room_number %></strong><br>
+                                <span class="muted" style="font-size: 12px;"><%= rv.room_type %></span>
+                            </td>
+                            <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;"><%= rv.check_in %></td>
+                            <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;"><%= rv.check_out %></td>
+                            <td>
+                                <span class="badge <%= rv.status === 'checked_in' ? 'badge-success' : rv.status === 'booked' ? 'badge-warning' : rv.status === 'checked_out' ? 'badge-info' : 'badge-danger' %>">
+                                    <%= rv.status %>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge <%= rv.payment_status === 'paid' || rv.payment_status === 'confirmed' ? 'badge-success' : rv.payment_status === 'submitted' ? 'badge-warning' : 'badge-danger' %>">
+                                    <%= rv.payment_status %>
+                                </span>
+                                <% if (rv.payment_txn_id) { %>
+                                    <br><span class="muted" style="font-size: 11px;">Txn: <%= rv.payment_txn_id %></span>
+                                <% } %>
+                                <% if (rv.payment_proof_path) { %>
+                                    <br><a href="<%= rv.payment_proof_path %>" target="_blank" class="btn btn-ghost" style="margin-top: 4px; padding: 4px 8px; font-size: 11px;">View Proof</a>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (rv.payment_status !== 'paid' && rv.payment_status !== 'confirmed') { %>
+                                    <form method="post" action="/admin/reservations/<%= rv.id %>/confirm" style="display: inline;">
+                                        <button class="btn" type="submit" style="padding: 6px 12px; font-size: 12px;">Confirm</button>
+                                    </form>
+                                <% } else { %>
+                                    <span class="muted">-</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Rooms Tab -->
+<div id="tab-rooms" class="tab-content">
+    <section class="card">
+        <div class="section-header">
+            <h3>Room Management</h3>
+        </div>
+        <div style="margin-bottom: 20px; padding: 16px; background: rgba(106, 160, 255, 0.05); border: 1px solid var(--border); border-radius: 8px;">
+            <h4 style="margin-top: 0; margin-bottom: 12px;">Add New Room</h4>
+            <form method="post" action="/admin/rooms" class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                <label>
+                    Room Number
+                    <input name="number" placeholder="e.g. 101" required>
+                </label>
+                <label>
+                    Type
+                    <input name="type" placeholder="e.g. Standard" required>
+                </label>
+                <label>
+                    Capacity
+                    <input name="capacity" type="number" placeholder="2" required min="1">
+                </label>
+                <label>
+                    Price/Night (₹)
+                    <input name="price_per_night" type="number" placeholder="80" required min="1">
+                </label>
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="btn" type="submit">Add Room</button>
+                </div>
+            </form>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Room #</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Type</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Capacity</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;">Price/Night (₹)</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Status</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Actions</th>
+                        </tr>
+                    </thead>
+                <tbody>
+                    <% rooms.forEach(r => { %>
+                        <tr>
+                            <td><strong><%= r.number %></strong></td>
+                            <td><%= r.type %></td>
+                            <td><%= r.capacity %> guests</td>
+                            <td style="white-space: nowrap !important;">
+                                <form method="post" action="/admin/rooms/<%= r.id %>" style="display: inline-flex; gap: 8px; align-items: center; white-space: nowrap;">
+                                    <input name="price_per_night" type="number" value="<%= r.price_per_night %>" style="width: 100px; padding: 6px;" required>
+                                    <input type="hidden" name="status" value="<%= r.status %>">
+                                    <button class="btn btn-ghost" type="submit" style="padding: 6px 12px; font-size: 12px; white-space: nowrap;">Update</button>
+                                </form>
+                            </td>
+                            <td style="white-space: nowrap !important;">
+                                <form method="post" action="/admin/rooms/<%= r.id %>" style="display: inline-flex; gap: 8px; align-items: center; white-space: nowrap;">
+                                    <input type="hidden" name="price_per_night" value="<%= r.price_per_night %>">
+                                    <select name="status" onchange="this.form.submit()" style="padding: 6px;">
+                                        <option <%= r.status==='available'?'selected':'' %> value="available">Available</option>
+                                        <option <%= r.status==='maintenance'?'selected':'' %> value="maintenance">Maintenance</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td style="white-space: nowrap !important;">
+                                <span class="badge <%= r.status === 'available' ? 'badge-success' : 'badge-warning' %>">
+                                    <%= r.status %>
+                                </span>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Staff Tab -->
+<div id="tab-staff" class="tab-content">
+    <section class="card">
+        <div class="section-header">
+            <h3>Staff Management</h3>
+        </div>
+        <div style="margin-bottom: 20px; padding: 16px; background: rgba(106, 160, 255, 0.05); border: 1px solid var(--border); border-radius: 8px;">
+            <h4 style="margin-top: 0; margin-bottom: 12px;">Add New Staff Member</h4>
+            <form method="post" action="/admin/staff" class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                <label>
+                    Name
+                    <input name="name" placeholder="Full Name" required>
+                </label>
+                <label>
+                    Role
+                    <select name="role" required>
+                        <option value="receptionist">Receptionist</option>
+                        <option value="admin">Admin</option>
+                        <option value="housekeeper">Housekeeper</option>
+                    </select>
+                </label>
+                <label>
+                    Username
+                    <input name="username" placeholder="username" required>
+                </label>
+                <label>
+                    Password
+                    <input name="password" type="password" placeholder="Leave blank for default">
+                </label>
+                <div style="display: flex; align-items: flex-end;">
+                    <button class="btn" type="submit">Add Staff</button>
+                </div>
+            </form>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Name</th>
+                        <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Role</th>
+                        <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Username</th>
+                        <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Status</th>
+                        <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% staff.forEach(s => { %>
+                        <tr>
+                            <td><strong><%= s.name %></strong></td>
+                            <td>
+                                <span class="badge <%= s.role === 'admin' ? 'badge-danger' : s.role === 'receptionist' ? 'badge-info' : 'badge-warning' %>">
+                                    <%= s.role %>
+                                </span>
+                            </td>
+                            <td><%= s.username %></td>
+                            <td>
+                                <span class="badge <%= s.active ? 'badge-success' : 'badge-danger' %>">
+                                    <%= s.active ? 'Active' : 'Inactive' %>
+                                </span>
+                            </td>
+                            <td style="white-space: nowrap !important;">
+                                <form method="post" action="/admin/staff/<%= s.id %>/toggle" style="display: inline; white-space: nowrap;">
+                                    <button class="btn btn-ghost" type="submit" style="padding: 6px 12px; font-size: 12px; white-space: nowrap;">
+                                        <%= s.active ? 'Deactivate' : 'Activate' %>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Performance Tab -->
+<div id="tab-performance" class="tab-content">
+    <section class="card">
+        <div class="section-header">
+            <h3>Performance Metrics (Last 30 Days)</h3>
+        </div>
+        <% if (kpis.length === 0) { %>
+            <p class="muted">No performance data available yet.</p>
+        <% } else { %>
+            <div class="admin-table-wrap">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Date</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Bookings</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Occupied Rooms</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Revenue (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% kpis.forEach(k => { %>
+                            <tr>
+                                <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;"><strong><%= k.day %></strong></td>
+                                <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;"><%= k.bookings || 0 %></td>
+                                <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;"><%= k.occupied || 0 %></td>
+                                <td style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;"><strong>₹<%= k.revenue || 0 %></strong></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </section>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.admin-tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>

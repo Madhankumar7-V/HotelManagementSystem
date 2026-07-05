@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> · MGS HOTEL</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">MGS HOTEL</a>
+        <nav class="nav">
+            <a href="/">Browse</a>
+            <a href="/book">Book</a>
+            <% if (session && session.customer) { %>
+                <a href="/customer/dashboard">My Reservations</a>
+                <span class="muted">Welcome, <%= session.customer.name %></span>
+                <form method="post" action="/customer/logout" style="display:inline">
+                    <button class="btn btn-ghost">Logout</button>
+                </form>
+            <% } else if (session && session.user) { %>
+                <% if (session.user.role === 'admin') { %>
+                    <a href="/admin">Admin</a>
+                <% } %>
+                <a href="/reception">Reception</a>
+                <form method="post" action="/auth/logout" style="display:inline">
+                    <button class="btn btn-ghost">Logout (<%= session.user.name %>)</button>
+                </form>
+            <% } else { %>
+                <a href="/customer/login">Customer Login</a>
+                <a href="/customer/register">Register</a>
+                <a href="/auth/login">Staff Login</a>
+            <% } %>
+        </nav>
+    </header>
+
+    <main class="container">
+        <%- body %>
+    </main>
+
+    <footer class="footer">© <%= new Date().getFullYear() %> MGS HOTEL</footer>
+</body>
+</html>
+
+

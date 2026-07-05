@@ -1,0 +1,49 @@
+<section class="card" style="max-width: 450px; margin: 60px auto;">
+    <h2 style="margin-top: 0; text-align: center; color: var(--primary);">Customer Login</h2>
+    <p style="text-align: center; color: var(--muted); margin-bottom: 24px;">
+        <% if (redirect === 'book') { %>
+            Please login to book a room
+        <% } else { %>
+            Sign in to access your account
+        <% } %>
+    </p>
+    
+    <% if (registered) { %>
+        <div style="padding: 12px; background: rgba(94, 234, 212, 0.1); border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 20px; color: var(--accent); text-align: center;">
+            ✓ Registration successful! Please login with your credentials.
+        </div>
+    <% } %>
+
+    <% if (error) { %>
+        <div class="error" style="padding: 12px; background: rgba(251, 113, 133, 0.1); border: 1px solid var(--danger); border-radius: 8px; margin-bottom: 20px;">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form method="post" action="/customer/login" class="form-grid" style="grid-template-columns: 1fr;">
+        <label>
+            <strong>Username</strong>
+            <input name="username" required placeholder="Enter your username" autocomplete="username" autofocus>
+        </label>
+
+        <label>
+            <strong>Password</strong>
+            <input name="password" type="password" required placeholder="Enter your password" autocomplete="current-password">
+        </label>
+
+        <button class="btn" type="submit" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 8px;">Login</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 20px; color: var(--muted);">
+        Don't have an account? <a href="/customer/register" style="color: var(--primary); text-decoration: none;">Register here</a>
+    </p>
+</section>
+
+<style>
+    label strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+</style>
+

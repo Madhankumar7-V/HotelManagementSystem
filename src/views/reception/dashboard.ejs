@@ -1,0 +1,109 @@
+<section class="grid two">
+    <article class="card">
+        <h3>Arrivals Today</h3>
+        <% if (!arrivals.length) { %>
+            <p class="muted">No arrivals.</p>
+        <% } else { %>
+            <% arrivals.forEach(a => { %>
+                <div class="row" style="align-items: center;">
+                    <div style="flex: 1;">
+                        <strong>#<%= a.id %></strong> · Room <strong><%= a.room_number %></strong> — <%= a.customer_name %>
+                        <br>
+                        <span class="muted" style="font-size: 12px;">Payment: <%= a.payment_status %> · <%= a.customer_email || a.customer_phone || '' %></span>
+                    </div>
+                    <form method="post" action="/reception/check-in/<%= a.id %>" style="display: inline-block; margin-left: 12px;">
+                        <button class="btn" type="submit">Check in</button>
+                    </form>
+                </div>
+            <% }) %>
+        <% } %>
+    </article>
+    <article class="card">
+        <h3>Departures Today</h3>
+        <% if (!departures.length) { %>
+            <p class="muted">No departures.</p>
+        <% } else { %>
+            <% departures.forEach(d => { %>
+                <div class="row" style="align-items: center;">
+                    <div style="flex: 1;">
+                        <strong>#<%= d.id %></strong> · Room <strong><%= d.room_number %></strong> — <%= d.customer_name %>
+                        <br>
+                        <span class="muted" style="font-size: 12px;">Payment: <%= d.payment_status %> · <%= d.customer_email || d.customer_phone || '' %></span>
+                    </div>
+                    <form method="post" action="/reception/check-out/<%= d.id %>" style="display: inline-block; margin-left: 12px;">
+                        <button class="btn btn-ghost" type="submit">Check out</button>
+                    </form>
+                </div>
+            <% }) %>
+        <% } %>
+    </article>
+</section>
+
+<section class="grid two" style="margin-top: 24px;">
+    <article class="card">
+        <h3>Currently Checked-In Guests</h3>
+        <% if (!checkedIn || checkedIn.length === 0) { %>
+            <p class="muted">No guests currently checked in.</p>
+        <% } else { %>
+            <% checkedIn.forEach(guest => { %>
+                <div class="row" style="align-items: center; padding: 12px 0;">
+                    <div style="flex: 1;">
+                        <strong>#<%= guest.id %></strong> · Room <strong><%= guest.room_number %></strong> — <%= guest.customer_name %>
+                        <br>
+                        <span class="muted" style="font-size: 12px;">
+                            Check-in: <%= guest.check_in %> · Check-out: <%= guest.check_out %>
+                            <br>
+                            <%= guest.customer_email || '' %> <%= guest.customer_phone ? ' · ' + guest.customer_phone : '' %>
+                        </span>
+                    </div>
+                    <form method="post" action="/reception/check-out/<%= guest.id %>" style="display: inline-block; margin-left: 12px;">
+                        <button class="btn btn-ghost" type="submit" style="padding: 6px 12px; font-size: 12px;">Check out</button>
+                    </form>
+                </div>
+            <% }) %>
+        <% } %>
+    </article>
+    <article class="card">
+        <h3>Service Requests</h3>
+        <% if (!serviceRequests || serviceRequests.length === 0) { %>
+            <p class="muted">No pending service requests.</p>
+        <% } else { %>
+            <% serviceRequests.forEach(sr => { %>
+                <div class="row" style="align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <strong>Room <%= sr.room_number %></strong>
+                            <span class="badge <%= sr.service_type === 'room_service' ? 'badge-info' : 'badge-warning' %>" style="padding: 2px 8px; font-size: 11px;">
+                                <%= sr.service_type === 'room_service' ? 'Room Service' : 'House Cleaning' %>
+                            </span>
+                        </div>
+                        <div class="muted" style="font-size: 12px;">
+                            <strong><%= sr.customer_name %></strong> · <%= sr.customer_phone || '' %>
+                            <% if (sr.request_details) { %>
+                                <br><span style="margin-top: 4px; display: block;">Details: <%= sr.request_details %></span>
+                            <% } %>
+                            <br><span style="margin-top: 4px; display: block; font-size: 11px;">Requested: <%= new Date(sr.created_at).toLocaleString() %></span>
+                        </div>
+                    </div>
+                    <form method="post" action="/reception/service-request/<%= sr.id %>/complete" style="display: inline-block; margin-left: 12px;">
+                        <button class="btn" type="submit" style="padding: 6px 12px; font-size: 12px;">Mark Complete</button>
+                    </form>
+                </div>
+            <% }) %>
+        <% } %>
+    </article>
+</section>
+
+<style>
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-success { background: rgba(94, 234, 212, 0.2); color: var(--accent); }
+    .badge-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .badge-danger { background: rgba(251, 113, 133, 0.2); color: var(--danger); }
+    .badge-info { background: rgba(106, 160, 255, 0.2); color: var(--primary); }
+</style>

@@ -1,0 +1,29 @@
+<section class="card">
+    <h2>Reservation #<%= reservation.id %></h2>
+    <p><strong>Status:</strong> <%= reservation.status %></p>
+    <p><strong>Guest:</strong> <%= reservation.customer_name %> (<%= reservation.customer_email || '—' %>)</p>
+    <p><strong>Room:</strong> <%= reservation.room_number %> — <%= reservation.room_type %></p>
+    <p><strong>Dates:</strong> <%= reservation.check_in %> → <%= reservation.check_out %></p>
+    <p><strong>Payment:</strong> <%= reservation.payment_status || 'submitted' %> <%= reservation.payment_txn_id ? '(' + reservation.payment_txn_id + ')' : '' %></p>
+    <% if (reservation.payment_proof_path) { %>
+        <div class="card" style="margin:12px 0;">
+            <div class="row"><span>Transaction ID</span><strong><%= reservation.payment_txn_id || '—' %></strong></div>
+            <div style="margin-top:8px">
+                <img src="<%= reservation.payment_proof_path %>" alt="Payment proof" style="max-width:100%; border-radius:8px; border:1px solid var(--border)">
+            </div>
+        </div>
+    <% } %>
+
+    
+
+    <% if (reservation.status === 'booked') { %>
+        <form method="post" action="/reservation/<%= reservation.id %>/cancel">
+            <button class="btn btn-ghost" type="submit">Cancel Reservation</button>
+        </form>
+    <% } %>
+    <p style="margin-top:12px">
+        <a class="btn" href="/">Back to Home</a>
+    </p>
+</section>
+
+

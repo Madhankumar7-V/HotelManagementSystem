@@ -1,0 +1,78 @@
+<section class="card" style="max-width: 600px; margin: 40px auto;">
+    <h2 style="margin-top: 0; text-align: center; color: var(--primary);">Create Customer Account</h2>
+    <p style="text-align: center; color: var(--muted); margin-bottom: 24px;">Register to book rooms and manage your reservations</p>
+    
+    <% if (error) { %>
+        <div class="error" style="padding: 12px; background: rgba(251, 113, 133, 0.1); border: 1px solid var(--danger); border-radius: 8px; margin-bottom: 20px;">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form method="post" action="/customer/register" class="form-grid">
+        <label style="grid-column: 1 / -1;">
+            <strong>Username <span style="color: var(--danger);">*</span></strong>
+            <input name="username" value="<%= form.username || '' %>" required placeholder="Choose a unique username" autocomplete="username">
+        </label>
+
+        <label>
+            <strong>Password <span style="color: var(--danger);">*</span></strong>
+            <input name="password" type="password" required placeholder="Min. 6 characters" autocomplete="new-password">
+        </label>
+
+        <label>
+            <strong>Confirm Password <span style="color: var(--danger);">*</span></strong>
+            <input name="confirm_password" type="password" required placeholder="Re-enter password" autocomplete="new-password">
+        </label>
+
+        <label style="grid-column: 1 / -1;">
+            <strong>Full Name <span style="color: var(--danger);">*</span></strong>
+            <input name="name" value="<%= form.name || '' %>" required placeholder="Enter your full name" autocomplete="name">
+        </label>
+
+        <label>
+            <strong>Email Address <span style="color: var(--danger);">*</span></strong>
+            <input name="email" type="email" value="<%= form.email || '' %>" required placeholder="your@email.com" autocomplete="email">
+        </label>
+
+        <label>
+            <strong>Phone Number <span style="color: var(--danger);">*</span></strong>
+            <input name="phone" type="tel" value="<%= form.phone || '' %>" required placeholder="10 digits" pattern="[0-9]{10}" maxlength="10">
+        </label>
+
+        <label style="grid-column: 1 / -1;">
+            <strong>Aadhar Number <span style="color: var(--danger);">*</span></strong>
+            <input name="aadhar" type="text" value="<%= form.aadhar || '' %>" required placeholder="12-digit Aadhar number" pattern="[0-9]{12}" maxlength="12">
+        </label>
+
+        <label style="grid-column: 1 / -1;">
+            <strong>Address</strong>
+            <textarea name="address" rows="3" placeholder="Your address (optional)"><%= form.address || '' %></textarea>
+        </label>
+
+        <div style="grid-column: 1 / -1; margin-top: 8px;">
+            <button class="btn" type="submit" style="width: 100%; padding: 12px; font-size: 16px;">Create Account</button>
+        </div>
+    </form>
+
+    <p style="text-align: center; margin-top: 20px; color: var(--muted);">
+        Already have an account? <a href="/customer/login" style="color: var(--primary); text-decoration: none;">Login here</a>
+    </p>
+</section>
+
+<style>
+    textarea {
+        background: #0b1220;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 10px;
+        border-radius: 10px;
+        font-family: inherit;
+        resize: vertical;
+    }
+    label strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+</style>
+
