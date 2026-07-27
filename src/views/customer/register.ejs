@@ -1,8 +1,8 @@
 <section class="card" style="max-width: 720px; margin: 40px auto;">
     <div class="badge badge-info">New Guest Registration</div>
     <h2 style="margin-bottom: 8px;">Create customer account</h2>
-    <p class="muted" style="margin-bottom: 24px;">Register once, stay signed in with persistent sessions, and manage future bookings from your dashboard.</p>
-    
+    <p class="muted" style="margin-bottom: 24px;">Your registered mobile number is your login ID — easy to remember, no separate username.</p>
+
     <% if (error) { %>
         <div class="panel error" style="margin-bottom: 20px; border-color: rgba(225, 29, 72, 0.3);">
             <%= error %>
@@ -10,9 +10,15 @@
     <% } %>
 
     <form method="post" action="/customer/register" class="form-grid">
-        <label style="grid-column: 1 / -1;">
-            <strong>Username <span style="color: var(--danger);">*</span></strong>
-            <input name="username" value="<%= form.username || '' %>" required placeholder="Choose a unique username" autocomplete="username">
+        <label>
+            <strong>Mobile number <span style="color: var(--danger);">*</span></strong>
+            <input name="phone" type="tel" value="<%= form.phone || '' %>" required placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10" autocomplete="tel">
+            <span class="muted" style="font-size:0.82rem;">This will also be your login ID</span>
+        </label>
+
+        <label>
+            <strong>Email Address <span style="color: var(--danger);">*</span></strong>
+            <input name="email" type="email" value="<%= form.email || '' %>" required placeholder="your@email.com" autocomplete="email">
         </label>
 
         <label>
@@ -28,16 +34,6 @@
         <label style="grid-column: 1 / -1;">
             <strong>Full Name <span style="color: var(--danger);">*</span></strong>
             <input name="name" value="<%= form.name || '' %>" required placeholder="Enter your full name" autocomplete="name">
-        </label>
-
-        <label>
-            <strong>Email Address <span style="color: var(--danger);">*</span></strong>
-            <input name="email" type="email" value="<%= form.email || '' %>" required placeholder="your@email.com" autocomplete="email">
-        </label>
-
-        <label>
-            <strong>Phone Number <span style="color: var(--danger);">*</span></strong>
-            <input name="phone" type="tel" value="<%= form.phone || '' %>" required placeholder="10 digits" pattern="[0-9]{10}" maxlength="10">
         </label>
 
         <label style="grid-column: 1 / -1;">
@@ -59,4 +55,3 @@
         Already have an account? <a href="/customer/login" style="color: var(--primary); text-decoration: none;">Login here</a>
     </p>
 </section>
-

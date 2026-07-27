@@ -1,8 +1,8 @@
 <section class="hero">
     <div class="hero-content">
-        <span class="hero-eyebrow">Online Booking Ready</span>
-        <h1>Professional room booking for your hotel website</h1>
-        <p class="muted">Guests can browse rooms, stay signed in with persistent sessions, submit UPI transaction proof, and track reservation status from a cleaner dashboard.</p>
+        <span class="hero-eyebrow">Madhan Hotel · Chennai</span>
+        <h1>Premium comfort stays, thoughtfully hosted</h1>
+        <p class="muted">Browse rooms with real photos, book online, pay via UPI, and track your reservation from your guest account.</p>
         <div class="form-inline" style="margin-top: 18px;">
             <a class="btn" href="/book">Book a room</a>
             <% if (!(session && session.customer)) { %>
@@ -13,48 +13,53 @@
     <div class="hero-overlay"></div>
 </section>
 
-<section class="grid two">
-    <article class="card">
-        <h3>Why guests will trust this flow</h3>
-        <div class="row"><span>Persistent login sessions</span><strong>No repeated login prompts</strong></div>
-        <div class="row"><span>Manual UPI payment verification</span><strong>Txn ID + proof screenshot</strong></div>
-        <div class="row"><span>Admin confirmation</span><strong>Approve bookings after cross-check</strong></div>
-    </article>
-    <article class="card">
-        <h3>Property contact</h3>
-        <p class="muted">Use these values from your environment before hosting.</p>
-        <div class="row"><span>Phone</span><strong><%= appConfig.hotelPhone %></strong></div>
-        <div class="row"><span>Email</span><strong><%= appConfig.hotelEmail %></strong></div>
-        <div class="row"><span>UPI ID</span><strong><%= appConfig.upiId %></strong></div>
-    </article>
-</section>
-
 <section>
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
         <div>
-            <h2 style="margin-bottom:4px;">Available room inventory</h2>
-            <p class="muted" style="margin:0;">Your team can refine pricing and status from the admin dashboard.</p>
+            <h2 style="margin-bottom:4px;">Our rooms</h2>
+            <p class="muted" style="margin:0;">Select a room style that fits your stay.</p>
         </div>
     </div>
     <div class="grid">
         <% rooms.forEach(r => { %>
-            <article class="card">
-                <div class="badge badge-info">Room <%= r.number %></div>
-                <h3 style="margin:12px 0 8px;"><%= r.type %></h3>
-                <p class="muted" style="margin-top:0;">Comfort-first stay for up to <%= r.capacity %> guests.</p>
-                <div class="row"><span>Capacity</span><strong><%= r.capacity %> guests</strong></div>
-                <div class="row"><span>Nightly price</span><strong>₹<%= r.price_per_night %></strong></div>
-                <div style="margin-top:18px;">
-                    <% if (session && session.customer) { %>
-                        <a class="btn" href="/book?room_id=<%= r.id %>">Reserve this room</a>
-                    <% } else { %>
-                        <a class="btn" href="/customer/login?redirect=/book&room_id=<%= r.id %>">Login to book</a>
-                        <p class="muted" style="margin:10px 0 0; font-size:0.9rem;">Guests need an account before payment verification and booking approval.</p>
-                    <% } %>
+            <article class="card room-card">
+                <div class="room-card-media">
+                    <img
+                        src="<%= r.image_url || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80' %>"
+                        alt="Room <%= r.number %> <%= r.type %>"
+                        loading="lazy"
+                    >
+                </div>
+                <div class="room-card-body">
+                    <div class="badge badge-info">Room <%= r.number %></div>
+                    <h3 style="margin:12px 0 8px;"><%= r.type %></h3>
+                    <p class="muted" style="margin-top:0;"><%= r.description || ('Comfort-first stay for up to ' + r.capacity + ' guests.') %></p>
+                    <div class="row"><span>Capacity</span><strong><%= r.capacity %> guests</strong></div>
+                    <div class="row"><span>Nightly price</span><strong>₹<%= r.price_per_night %></strong></div>
+                    <div style="margin-top:18px;">
+                        <% if (session && session.customer) { %>
+                            <a class="btn" href="/book?room_id=<%= r.id %>">Reserve this room</a>
+                        <% } else { %>
+                            <a class="btn" href="/customer/login?redirect=book&room_id=<%= r.id %>">Login to book</a>
+                        <% } %>
+                    </div>
                 </div>
             </article>
         <% }) %>
     </div>
 </section>
 
-
+<section class="grid two" style="margin-top:8px;">
+    <article class="card">
+        <h3>Easy guest booking</h3>
+        <div class="row"><span>Login with mobile number</span><strong>No username to remember</strong></div>
+        <div class="row"><span>UPI QR payment</span><strong>Txn ID + proof screenshot</strong></div>
+        <div class="row"><span>Admin confirmation</span><strong>Verified before final booking</strong></div>
+    </article>
+    <article class="card">
+        <h3>Property contact</h3>
+        <div class="row"><span>Phone</span><strong><a href="tel:<%= appConfig.hotelPhone %>"><%= appConfig.hotelPhone %></a></strong></div>
+        <div class="row"><span>Email</span><strong><a href="mailto:<%= appConfig.hotelEmail %>"><%= appConfig.hotelEmail %></a></strong></div>
+        <div class="row"><span>Location</span><strong><%= appConfig.hotelAddress %></strong></div>
+    </article>
+</section>

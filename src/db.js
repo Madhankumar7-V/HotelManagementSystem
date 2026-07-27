@@ -39,6 +39,8 @@ function withRoom(reservation) {
 		room_number: room.number,
 		room_type: room.type,
 		price_per_night: room.price_per_night,
+		room_image_url: room.image_url,
+		room_description: room.description,
 	};
 }
 
@@ -82,18 +84,43 @@ const db = {
 		return data;
 	},
 
-	async findExistingCustomer({ username, email, aadhar }) {
+	async getCustomerByPhone(phone) {
+		const { data, error } = await getSupabase()
+			.from('customers')
+			.select('*')
+			.eq('phone', phone)
+			.eq('active', true)
+			.maybeSingle();
+		assertOk(error, 'getCustomerByPhone');
+		return data;
+	},
+
+	async findExistingCustomer({ phone, email, aadhar, excludeId = null }) {
 		const checks = await Promise.all([
-			getSupabase().from('customers').select('id').eq('username', username).maybeSingle(),
+			getSupabase().from('customers').select('id').eq('phone', phone).maybeSingle(),
+			getSupabase().from('customers').select('id').eq('username', phone).maybeSingle(),
 			getSupabase().from('customers').select('id').eq('email', email).maybeSingle(),
 			getSupabase().from('customers').select('id').eq('aadhar', aadhar).maybeSingle(),
 		]);
 
 		for (const result of checks) {
 			assertOk(result.error, 'findExistingCustomer');
-			if (result.data) return result.data;
+			if (result.data && Number(result.data.id) !== Number(excludeId)) {
+				return result.data;
+			}
 		}
 		return null;
+	},
+
+	async updateCustomer(id, payload) {
+		const { data, error } = await getSupabase()
+			.from('customers')
+			.update(payload)
+			.eq('id', id)
+			.select('*')
+			.single();
+		assertOk(error, 'updateCustomer');
+		return data;
 	},
 
 	async createCustomer(payload) {
@@ -188,7 +215,7 @@ const db = {
 	async getReservationById(id) {
 		const { data, error } = await getSupabase()
 			.from('reservations')
-			.select('*, rooms(number, type, price_per_night)')
+			.select('*, rooms(number, type, price_per_night, image_url, description)')
 			.eq('id', id)
 			.maybeSingle();
 		assertOk(error, 'getReservationById');
@@ -213,7 +240,7 @@ const db = {
 	async listCustomerReservations(customerId) {
 		const { data, error } = await getSupabase()
 			.from('reservations')
-			.select('*, rooms(number, type, price_per_night)')
+			.select('*, rooms(number, type, price_per_night, image_url, description)')
 			.eq('customer_id', customerId)
 			.order('created_at', { ascending: false });
 		assertOk(error, 'listCustomerReservations');
@@ -289,7 +316,7 @@ const db = {
 	async listReservationsByCheckIn(date, status) {
 		const { data, error } = await getSupabase()
 			.from('reservations')
-			.select('*, rooms(number, type, price_per_night)')
+			.select('*, rooms(number, type, price_per_night, image_url, description)')
 			.eq('check_in', date)
 			.eq('status', status)
 			.order('created_at');
@@ -300,7 +327,7 @@ const db = {
 	async listReservationsByCheckOut(date, status) {
 		const { data, error } = await getSupabase()
 			.from('reservations')
-			.select('*, rooms(number, type, price_per_night)')
+			.select('*, rooms(number, type, price_per_night, image_url, description)')
 			.eq('check_out', date)
 			.eq('status', status)
 			.order('created_at');
@@ -311,7 +338,7 @@ const db = {
 	async listCheckedInReservations() {
 		const { data, error } = await getSupabase()
 			.from('reservations')
-			.select('*, rooms(number, type, price_per_night)')
+			.select('*, rooms(number, type, price_per_night, image_url, description)')
 			.eq('status', 'checked_in')
 			.order('check_out');
 		assertOk(error, 'listCheckedInReservations');

@@ -408,7 +408,15 @@
                 </label>
                 <label>
                     Price/Night (₹)
-                    <input name="price_per_night" type="number" placeholder="80" required min="1">
+                    <input name="price_per_night" type="number" placeholder="2400" required min="1">
+                </label>
+                <label style="grid-column: 1 / -1;">
+                    Image URL
+                    <input name="image_url" placeholder="https://... room photo URL">
+                </label>
+                <label style="grid-column: 1 / -1;">
+                    Description
+                    <input name="description" placeholder="Short room description">
                 </label>
                 <div style="display: flex; align-items: flex-end;">
                     <button class="btn" type="submit">Add Room</button>
@@ -419,30 +427,42 @@
             <table class="table admin-table">
                     <thead>
                         <tr>
+                            <th>Photo</th>
                             <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Room #</th>
                             <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Type</th>
                             <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Capacity</th>
                             <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important; white-space: nowrap;">Price/Night (₹)</th>
                             <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Status</th>
-                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Actions</th>
+                            <th style="writing-mode: horizontal-tb !important; text-orientation: mixed !important;">Image / Update</th>
                         </tr>
                     </thead>
                 <tbody>
                     <% rooms.forEach(r => { %>
                         <tr>
+                            <td>
+                                <% if (r.image_url) { %>
+                                    <img src="<%= r.image_url %>" alt="Room <%= r.number %>" style="width:72px; height:54px; object-fit:cover; border-radius:8px;">
+                                <% } else { %>
+                                    <span class="muted">No image</span>
+                                <% } %>
+                            </td>
                             <td><strong><%= r.number %></strong></td>
                             <td><%= r.type %></td>
                             <td><%= r.capacity %> guests</td>
                             <td style="white-space: nowrap !important;">
-                                <form method="post" action="/admin/rooms/<%= r.id %>" style="display: inline-flex; gap: 8px; align-items: center; white-space: nowrap;">
-                                    <input name="price_per_night" type="number" value="<%= r.price_per_night %>" style="width: 100px; padding: 6px;" required>
+                                <form method="post" action="/admin/rooms/<%= r.id %>" class="form-grid" style="grid-template-columns: 1fr; min-width: 220px; gap: 8px;">
+                                    <input name="price_per_night" type="number" value="<%= r.price_per_night %>" required>
+                                    <input name="image_url" type="url" value="<%= r.image_url || '' %>" placeholder="Image URL">
+                                    <input name="description" value="<%= r.description || '' %>" placeholder="Description">
                                     <input type="hidden" name="status" value="<%= r.status %>">
-                                    <button class="btn btn-ghost" type="submit" style="padding: 6px 12px; font-size: 12px; white-space: nowrap;">Update</button>
+                                    <button class="btn btn-ghost" type="submit" style="padding: 6px 12px; font-size: 12px;">Update room</button>
                                 </form>
                             </td>
                             <td style="white-space: nowrap !important;">
                                 <form method="post" action="/admin/rooms/<%= r.id %>" style="display: inline-flex; gap: 8px; align-items: center; white-space: nowrap;">
                                     <input type="hidden" name="price_per_night" value="<%= r.price_per_night %>">
+                                    <input type="hidden" name="image_url" value="<%= r.image_url || '' %>">
+                                    <input type="hidden" name="description" value="<%= r.description || '' %>">
                                     <select name="status" onchange="this.form.submit()" style="padding: 6px;">
                                         <option <%= r.status==='available'?'selected':'' %> value="available">Available</option>
                                         <option <%= r.status==='maintenance'?'selected':'' %> value="maintenance">Maintenance</option>

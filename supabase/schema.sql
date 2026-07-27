@@ -1,7 +1,6 @@
 -- Madhan Hotel · Supabase schema
--- Run this once in: Supabase Dashboard → SQL Editor → New query → Run
+-- Run once in: Supabase Dashboard → SQL Editor → New query → Run
 
--- Clean slate (safe for fresh projects)
 DROP VIEW IF EXISTS v_kpis;
 DROP TABLE IF EXISTS service_requests CASCADE;
 DROP TABLE IF EXISTS assignments CASCADE;
@@ -17,6 +16,8 @@ CREATE TABLE rooms (
 	capacity INTEGER NOT NULL CHECK (capacity > 0),
 	price_per_night INTEGER NOT NULL CHECK (price_per_night >= 0),
 	status TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'maintenance')),
+	image_url TEXT,
+	description TEXT,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -30,13 +31,14 @@ CREATE TABLE staff (
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- username is always the 10-digit mobile number
 CREATE TABLE customers (
 	id BIGSERIAL PRIMARY KEY,
 	username TEXT UNIQUE NOT NULL,
 	password_hash TEXT NOT NULL,
 	name TEXT NOT NULL,
 	email TEXT UNIQUE NOT NULL,
-	phone TEXT NOT NULL,
+	phone TEXT UNIQUE NOT NULL,
 	aadhar TEXT UNIQUE NOT NULL,
 	address TEXT,
 	active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -86,6 +88,7 @@ CREATE INDEX idx_rooms_status ON rooms(status);
 CREATE INDEX idx_reservations_room_dates ON reservations(room_id, check_in, check_out);
 CREATE INDEX idx_reservations_status ON reservations(status);
 CREATE INDEX idx_reservations_customer ON reservations(customer_id);
+CREATE INDEX idx_customers_phone ON customers(phone);
 CREATE INDEX idx_service_requests_status ON service_requests(status);
 
 CREATE OR REPLACE VIEW v_kpis AS
@@ -101,26 +104,51 @@ FROM reservations r
 JOIN rooms rm ON rm.id = r.room_id
 GROUP BY r.check_in;
 
--- Seed rooms
-INSERT INTO rooms (number, type, capacity, price_per_night, status) VALUES
-	('101', 'Standard', 2, 2400, 'available'),
-	('102', 'Standard', 2, 2400, 'available'),
-	('201', 'Deluxe', 3, 4200, 'available'),
-	('301', 'Suite', 4, 6800, 'available');
+INSERT INTO rooms (number, type, capacity, price_per_night, status, image_url, description) VALUES
+	(
+		'101',
+		'Standard',
+		2,
+		2400,
+		'available',
+		'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80',
+		'Cozy standard room with soft lighting, queen bed, and essential comforts for a restful stay.'
+	),
+	(
+		'102',
+		'Standard',
+		2,
+		2400,
+		'available',
+		'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=80',
+		'Bright twin-ready standard room with clean finishes and a calm city-stay vibe.'
+	),
+	(
+		'201',
+		'Deluxe',
+		3,
+		4200,
+		'available',
+		'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80',
+		'Spacious deluxe room with premium bedding, work desk, and a more elevated guest experience.'
+	),
+	(
+		'301',
+		'Suite',
+		4,
+		6800,
+		'available',
+		'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=80',
+		'Premium suite with lounge space, refined interiors, and room to unwind in style.'
+	);
 
--- Seed staff (passwords: admin123 / reception123)
 INSERT INTO staff (name, role, username, password_hash, active) VALUES
 	('Administrator', 'admin', 'admin', '$2b$10$018R9JtZA.fn5KlBHoA8se/YWXlQkMLvXoHzmKV34fDs6KegkwGYG', TRUE),
 	('Front Desk', 'receptionist', 'reception', '$2b$10$nnR3idVxLp./NmQL2R8GZupYINx7dQrl6NNq3fu0YjD0zUUhm1chy', TRUE);
 
--- Helpful: allow service role full access (server uses service role key)
--- RLS can stay off for server-side apps using the service role key.
 ALTER TABLE rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_requests ENABLE ROW LEVEL SECURITY;
-
--- No anon policies: only service role (bypasses RLS) accesses data from Express.
--- This keeps the site secure when using SUPABASE_SERVICE_ROLE_KEY on the server.

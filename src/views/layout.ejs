@@ -45,6 +45,7 @@
                     <a href="/book">Book</a>
                     <% if (session && session.customer) { %>
                         <a href="/customer/dashboard">My Reservations</a>
+                        <a href="/customer/profile">My Details</a>
                         <span class="muted nav-greeting">Hi, <%= session.customer.name %></span>
                         <form method="post" action="/customer/logout" class="nav-form">
                             <button class="btn btn-ghost btn-block-mobile" type="submit">Logout</button>

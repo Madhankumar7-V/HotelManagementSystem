@@ -1,92 +1,126 @@
 <section class="hero hero-book">
     <div class="hero-content">
-        <span class="hero-eyebrow">Manual Payment Verification</span>
+        <span class="hero-eyebrow">Secure UPI Booking</span>
         <h1>Reserve your stay</h1>
-        <p class="muted">Scan the UPI QR, pay the booking amount, upload proof, and submit your transaction ID. You can manually verify and confirm the reservation later from admin.</p>
+        <p class="muted">Choose a room, review the live preview, pay via UPI QR, then submit your transaction ID and payment proof.</p>
     </div>
     <div class="hero-overlay"></div>
 </section>
 
-<section class="grid two booking-layout">
-    <article class="card">
-        <h2>Booking details</h2>
-        <% if (typeof error !== 'undefined') { %>
-            <div class="panel" style="margin-bottom:16px; border-color: rgba(225, 29, 72, 0.25);">
-                <p class="error" style="margin:0;"><%= error %></p>
+<section class="booking-layout">
+    <article class="card room-preview-card">
+        <div class="room-preview-media">
+            <%
+                const selectedId = String(form?.room_id || query.room_id || (rooms[0] && rooms[0].id) || '');
+                const selectedRoom = (rooms || []).find(r => String(r.id) === selectedId) || rooms[0];
+                const fallbackImage = 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80';
+            %>
+            <img
+                id="room_preview_image"
+                class="room-preview-image"
+                src="<%= selectedRoom?.image_url || fallbackImage %>"
+                alt="Selected room preview"
+            >
+            <div class="room-preview-copy">
+                <div class="badge badge-info" id="room_preview_badge">
+                    Room <%= selectedRoom?.number || '—' %>
+                </div>
+                <h2 id="room_preview_title" style="margin:12px 0 8px;"><%= selectedRoom?.type || 'Select a room' %></h2>
+                <p class="muted" id="room_preview_desc"><%= selectedRoom?.description || 'Pick a room to see photos, capacity, and nightly rate.' %></p>
+                <div class="room-preview-meta">
+                    <span><strong id="room_preview_capacity"><%= selectedRoom?.capacity || 0 %></strong> guests</span>
+                    <span>₹<strong id="room_preview_price"><%= selectedRoom?.price_per_night || 0 %></strong>/night</span>
+                </div>
             </div>
-        <% } %>
-        <form method="post" action="/book" enctype="multipart/form-data" class="form-grid" id="booking-form">
-            <label>
-                Full name
-                <input required name="name" value="<%= form?.name || '' %>">
-            </label>
-            <label>
-                Email
-                <input type="email" name="email" value="<%= form?.email || '' %>">
-            </label>
-            <label>
-                Phone
-                <input type="tel" name="phone" placeholder="10-digit phone number" value="<%= form?.phone || '' %>">
-            </label>
-            <label>
-                Room
-                <select name="room_id" id="room_id" required>
-                    <option value="">Select a room</option>
-                    <% (rooms || []).forEach(r => { %>
-                        <option data-price="<%= r.price_per_night %>" value="<%= r.id %>" <%= String(form?.room_id || query.room_id || '')===String(r.id)?'selected':'' %>>
-                            Room <%= r.number %> — <%= r.type %> • <%= r.capacity %>p • ₹<%= r.price_per_night %>/night
-                        </option>
-                    <% }) %>
-                </select>
-            </label>
-            <label>
-                Check-in
-                <input type="date" required name="check_in" id="check_in" value="<%= form?.check_in || '' %>">
-            </label>
-            <label>
-                Check-out
-                <input type="date" required name="check_out" id="check_out" value="<%= form?.check_out || '' %>">
-            </label>
-            <label>
-                Transaction ID
-                <input required name="payment_txn_id" placeholder="Reference / UTR / Txn ID" value="<%= form?.payment_txn_id || '' %>">
-            </label>
-            <label>
-                Upload payment proof (image)
-                <input required type="file" name="payment_proof" accept="image/*">
-            </label>
-            <div class="booking-submit-wrap" style="grid-column: 1 / -1;">
-                <button class="btn" type="submit">Submit booking request</button>
-            </div>
-        </form>
+        </div>
     </article>
 
-    <aside class="card upi-panel">
-        <h3>UPI payment guide</h3>
-        <p class="muted">Guests pay using the QR below. After payment, they submit the UTR or transaction ID for manual review.</p>
-        <div class="panel upi-qr-wrap" style="text-align:center; margin-bottom:16px;">
-            <img id="upi_qr_image" alt="UPI QR code" src="/payment/upi-qr?amount=0">
-            <p class="muted" style="margin:12px 0 0;">UPI ID: <strong><%= appConfig.upiId %></strong></p>
-            <p class="muted" style="margin:4px 0 0;">Payee: <strong><%= appConfig.upiPayeeName %></strong></p>
-        </div>
-        <div class="row"><span>Nights</span><strong id="est_nights">0</strong></div>
-        <div class="row"><span>Price/night</span><strong>₹<span id="est_price">0</span></strong></div>
-        <div class="row"><span>Estimated total</span><strong>₹<span id="est_total">0</span></strong></div>
-        <div class="row"><span>Suggested payment</span><strong>₹<span id="upi_amount">0</span></strong></div>
-        <p class="muted" style="margin:16px 0 0;">Mobile-friendly deep link:</p>
-        <a
-            id="upi_link"
-            class="btn btn-ghost"
-            data-base="upi://pay?pa=<%= encodeURIComponent(appConfig.upiId) %>&pn=<%= encodeURIComponent(appConfig.upiPayeeName) %>&cu=INR&tn=Hotel%20room%20booking&am="
-            href="upi://pay?pa=<%= encodeURIComponent(appConfig.upiId) %>&pn=<%= encodeURIComponent(appConfig.upiPayeeName) %>&cu=INR&tn=Hotel%20room%20booking&am=0"
-        >
-            Open UPI app
-        </a>
-        <div class="panel" style="margin-top:16px;">
-            <strong>What happens next?</strong>
-            <p class="muted" style="margin-bottom:0;">The reservation stays in submitted status until you cross-check the payment and confirm it from the admin dashboard. You can send the final confirmation email manually for now.</p>
-        </div>
-    </aside>
+    <section class="grid two">
+        <article class="card">
+            <h2>Booking details</h2>
+            <% if (typeof error !== 'undefined') { %>
+                <div class="panel" style="margin-bottom:16px; border-color: rgba(225, 29, 72, 0.25);">
+                    <p class="error" style="margin:0;"><%= error %></p>
+                </div>
+            <% } %>
+            <form method="post" action="/book" enctype="multipart/form-data" class="form-grid" id="booking-form">
+                <label>
+                    Full name
+                    <input required name="name" value="<%= form?.name || '' %>">
+                </label>
+                <label>
+                    Email
+                    <input type="email" name="email" value="<%= form?.email || '' %>">
+                </label>
+                <label>
+                    Phone
+                    <input type="tel" name="phone" placeholder="10-digit phone number" value="<%= form?.phone || '' %>">
+                </label>
+                <label>
+                    Room
+                    <select name="room_id" id="room_id" required>
+                        <option value="">Select a room</option>
+                        <% (rooms || []).forEach(r => { %>
+                            <option
+                                data-price="<%= r.price_per_night %>"
+                                data-image="<%= r.image_url || fallbackImage %>"
+                                data-type="<%= r.type %>"
+                                data-number="<%= r.number %>"
+                                data-capacity="<%= r.capacity %>"
+                                data-description="<%= (r.description || '').replace(/"/g, '&quot;') %>"
+                                value="<%= r.id %>"
+                                <%= String(form?.room_id || query.room_id || '')===String(r.id)?'selected':'' %>
+                            >
+                                Room <%= r.number %> — <%= r.type %> • <%= r.capacity %>p • ₹<%= r.price_per_night %>/night
+                            </option>
+                        <% }) %>
+                    </select>
+                </label>
+                <label>
+                    Check-in
+                    <input type="date" required name="check_in" id="check_in" value="<%= form?.check_in || '' %>">
+                </label>
+                <label>
+                    Check-out
+                    <input type="date" required name="check_out" id="check_out" value="<%= form?.check_out || '' %>">
+                </label>
+                <label>
+                    Transaction ID
+                    <input required name="payment_txn_id" placeholder="Reference / UTR / Txn ID" value="<%= form?.payment_txn_id || '' %>">
+                </label>
+                <label>
+                    Upload payment proof (image)
+                    <input required type="file" name="payment_proof" accept="image/*">
+                </label>
+                <div class="booking-submit-wrap" style="grid-column: 1 / -1;">
+                    <button class="btn" type="submit">Submit booking request</button>
+                </div>
+            </form>
+        </article>
+
+        <aside class="card upi-panel">
+            <h3>UPI payment</h3>
+            <p class="muted">Scan the QR, pay the estimated total, then enter your transaction ID with a clear screenshot.</p>
+            <div class="panel upi-qr-wrap" style="text-align:center; margin-bottom:16px;">
+                <img id="upi_qr_image" alt="UPI QR code" src="/payment/upi-qr?amount=0">
+                <p class="muted" style="margin:12px 0 0;">UPI ID: <strong><%= appConfig.upiId %></strong></p>
+                <p class="muted" style="margin:4px 0 0;">Payee: <strong><%= appConfig.upiPayeeName %></strong></p>
+            </div>
+            <div class="row"><span>Nights</span><strong id="est_nights">0</strong></div>
+            <div class="row"><span>Price/night</span><strong>₹<span id="est_price">0</span></strong></div>
+            <div class="row"><span>Estimated total</span><strong>₹<span id="est_total">0</span></strong></div>
+            <div class="row"><span>Suggested payment</span><strong>₹<span id="upi_amount">0</span></strong></div>
+            <p class="muted" style="margin:16px 0 0;">Prefer paying from your phone?</p>
+            <a
+                id="upi_link"
+                class="btn btn-ghost"
+                data-base="upi://pay?pa=<%= encodeURIComponent(appConfig.upiId) %>&pn=<%= encodeURIComponent(appConfig.upiPayeeName) %>&cu=INR&tn=Hotel%20room%20booking&am="
+                href="upi://pay?pa=<%= encodeURIComponent(appConfig.upiId) %>&pn=<%= encodeURIComponent(appConfig.upiPayeeName) %>&cu=INR&tn=Hotel%20room%20booking&am=0"
+            >
+                Open UPI app
+            </a>
+        </aside>
+    </section>
 </section>
 
 <script src="/static/js/booking.js"></script>

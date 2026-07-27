@@ -1,0 +1,56 @@
+<section class="card" style="max-width: 760px; margin: 0 auto;">
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-bottom:18px;">
+        <div>
+            <div class="badge badge-info">My Details</div>
+            <h2 style="margin:12px 0 4px;">Edit your profile</h2>
+            <p class="muted" style="margin:0;">Your mobile number is also your login ID.</p>
+        </div>
+        <a class="btn btn-ghost" href="/customer/dashboard">My reservations</a>
+    </div>
+
+    <% if (success) { %>
+        <div class="panel" style="margin-bottom: 16px; color: var(--accent); border-color: rgba(20, 184, 166, 0.3);">
+            ✓ Your details were updated successfully.
+        </div>
+    <% } %>
+
+    <% if (error) { %>
+        <div class="panel error" style="margin-bottom: 16px; border-color: rgba(225, 29, 72, 0.3);">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form method="post" action="/customer/profile" class="form-grid">
+        <label>
+            <strong>Full name</strong>
+            <input name="name" required value="<%= profile.name || '' %>">
+        </label>
+        <label>
+            <strong>Mobile number (login ID)</strong>
+            <input name="phone" type="tel" required pattern="[0-9]{10}" maxlength="10" value="<%= profile.phone || '' %>">
+        </label>
+        <label>
+            <strong>Email</strong>
+            <input name="email" type="email" required value="<%= profile.email || '' %>">
+        </label>
+        <label>
+            <strong>Aadhar number</strong>
+            <input name="aadhar" required pattern="[0-9]{12}" maxlength="12" value="<%= profile.aadhar || '' %>">
+        </label>
+        <label style="grid-column: 1 / -1;">
+            <strong>Address</strong>
+            <textarea name="address" rows="3"><%= profile.address || '' %></textarea>
+        </label>
+        <label>
+            <strong>New password</strong>
+            <input name="password" type="password" placeholder="Leave blank to keep current" autocomplete="new-password">
+        </label>
+        <label>
+            <strong>Confirm new password</strong>
+            <input name="confirm_password" type="password" placeholder="Confirm if changing" autocomplete="new-password">
+        </label>
+        <div style="grid-column: 1 / -1;">
+            <button class="btn" type="submit">Save details</button>
+        </div>
+    </form>
+</section>

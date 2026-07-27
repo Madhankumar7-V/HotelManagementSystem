@@ -3,15 +3,15 @@
     <h2 style="margin-bottom: 8px;">Customer login</h2>
     <p class="muted" style="margin-bottom: 24px;">
         <% if (redirect === 'book') { %>
-            Sign in to continue with room booking and payment verification.
+            Sign in with your registered mobile number to continue booking.
         <% } else { %>
-            Sign in to manage your reservations, proofs, and stay history.
+            Sign in with your registered mobile number and password.
         <% } %>
     </p>
-    
+
     <% if (registered) { %>
         <div class="panel" style="margin-bottom: 20px; color: var(--accent); border-color: rgba(20, 184, 166, 0.3);">
-            ✓ Registration successful! Please login with your credentials.
+            ✓ Registration successful! Login with your mobile number and password.
         </div>
     <% } %>
 
@@ -23,8 +23,8 @@
 
     <form method="post" action="/customer/login" class="form-grid" style="grid-template-columns: 1fr;">
         <label>
-            <strong>Username</strong>
-            <input name="username" required placeholder="Enter your username" autocomplete="username" autofocus>
+            <strong>Registered mobile number</strong>
+            <input name="phone" type="tel" required placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10" autocomplete="tel" autofocus>
         </label>
 
         <label>

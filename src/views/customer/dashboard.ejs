@@ -4,7 +4,10 @@
             <div class="badge badge-info">Guest Dashboard</div>
             <h2 style="margin: 12px 0 0;">My reservations</h2>
         </div>
-        <span class="muted">Welcome, <%= customer.name %></span>
+        <div class="form-inline">
+            <a class="btn btn-ghost" href="/customer/profile">My details</a>
+            <span class="muted">Welcome, <%= customer.name %></span>
+        </div>
     </div>
 
     <% if (!reservations || reservations.length === 0) { %>
