@@ -1,9 +1,10 @@
-<section class="card" style="max-width: 600px; margin: 40px auto;">
-    <h2 style="margin-top: 0; text-align: center; color: var(--primary);">Create Customer Account</h2>
-    <p style="text-align: center; color: var(--muted); margin-bottom: 24px;">Register to book rooms and manage your reservations</p>
+<section class="card" style="max-width: 720px; margin: 40px auto;">
+    <div class="badge badge-info">New Guest Registration</div>
+    <h2 style="margin-bottom: 8px;">Create customer account</h2>
+    <p class="muted" style="margin-bottom: 24px;">Register once, stay signed in with persistent sessions, and manage future bookings from your dashboard.</p>
     
     <% if (error) { %>
-        <div class="error" style="padding: 12px; background: rgba(251, 113, 133, 0.1); border: 1px solid var(--danger); border-radius: 8px; margin-bottom: 20px;">
+        <div class="panel error" style="margin-bottom: 20px; border-color: rgba(225, 29, 72, 0.3);">
             <%= error %>
         </div>
     <% } %>
@@ -50,29 +51,12 @@
         </label>
 
         <div style="grid-column: 1 / -1; margin-top: 8px;">
-            <button class="btn" type="submit" style="width: 100%; padding: 12px; font-size: 16px;">Create Account</button>
+            <button class="btn" type="submit" style="width: 100%;">Create account</button>
         </div>
     </form>
 
-    <p style="text-align: center; margin-top: 20px; color: var(--muted);">
+    <p class="muted" style="margin-top: 20px;">
         Already have an account? <a href="/customer/login" style="color: var(--primary); text-decoration: none;">Login here</a>
     </p>
 </section>
-
-<style>
-    textarea {
-        background: #0b1220;
-        color: var(--text);
-        border: 1px solid var(--border);
-        padding: 10px;
-        border-radius: 10px;
-        font-family: inherit;
-        resize: vertical;
-    }
-    label strong {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 14px;
-    }
-</style>
 

@@ -5,6 +5,13 @@
 	const nightsEl = document.getElementById('est_nights');
 	const priceEl = document.getElementById('est_price');
 	const totalEl = document.getElementById('est_total');
+	const qrImage = document.getElementById('upi_qr_image');
+	const upiAmount = document.getElementById('upi_amount');
+	const upiLink = document.getElementById('upi_link');
+
+	const today = new Date().toISOString().split('T')[0];
+	if (inEl) inEl.min = today;
+	if (outEl) outEl.min = today;
 
 	function calc() {
 		const inDate = new Date(inEl.value);
@@ -16,7 +23,12 @@
 		}
 		nightsEl.textContent = nights;
 		priceEl.textContent = price.toFixed(0);
-		totalEl.textContent = (nights * price).toFixed(0);
+		const total = Math.max(nights, 1) * price;
+		totalEl.textContent = total.toFixed(0);
+		if (upiAmount) upiAmount.textContent = total.toFixed(0);
+		if (qrImage) qrImage.src = '/payment/upi-qr?amount=' + encodeURIComponent(total.toFixed(0));
+		if (upiLink) upiLink.href = upiLink.dataset.base + encodeURIComponent(total.toFixed(0));
+		if (inEl?.value) outEl.min = inEl.value;
 	}
 
 	room?.addEventListener('change', calc);

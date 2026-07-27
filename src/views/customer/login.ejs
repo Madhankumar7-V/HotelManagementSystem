@@ -1,21 +1,22 @@
-<section class="card" style="max-width: 450px; margin: 60px auto;">
-    <h2 style="margin-top: 0; text-align: center; color: var(--primary);">Customer Login</h2>
-    <p style="text-align: center; color: var(--muted); margin-bottom: 24px;">
+<section class="card" style="max-width: 480px; margin: 40px auto;">
+    <div class="badge badge-info">Guest Access</div>
+    <h2 style="margin-bottom: 8px;">Customer login</h2>
+    <p class="muted" style="margin-bottom: 24px;">
         <% if (redirect === 'book') { %>
-            Please login to book a room
+            Sign in to continue with room booking and payment verification.
         <% } else { %>
-            Sign in to access your account
+            Sign in to manage your reservations, proofs, and stay history.
         <% } %>
     </p>
     
     <% if (registered) { %>
-        <div style="padding: 12px; background: rgba(94, 234, 212, 0.1); border: 1px solid var(--accent); border-radius: 8px; margin-bottom: 20px; color: var(--accent); text-align: center;">
+        <div class="panel" style="margin-bottom: 20px; color: var(--accent); border-color: rgba(20, 184, 166, 0.3);">
             ✓ Registration successful! Please login with your credentials.
         </div>
     <% } %>
 
     <% if (error) { %>
-        <div class="error" style="padding: 12px; background: rgba(251, 113, 133, 0.1); border: 1px solid var(--danger); border-radius: 8px; margin-bottom: 20px;">
+        <div class="panel error" style="margin-bottom: 20px; border-color: rgba(225, 29, 72, 0.3);">
             <%= error %>
         </div>
     <% } %>
@@ -31,19 +32,10 @@
             <input name="password" type="password" required placeholder="Enter your password" autocomplete="current-password">
         </label>
 
-        <button class="btn" type="submit" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 8px;">Login</button>
+        <button class="btn" type="submit" style="width: 100%; margin-top: 8px;">Login</button>
     </form>
 
-    <p style="text-align: center; margin-top: 20px; color: var(--muted);">
+    <p class="muted" style="margin-top: 20px;">
         Don't have an account? <a href="/customer/register" style="color: var(--primary); text-decoration: none;">Register here</a>
     </p>
 </section>
-
-<style>
-    label strong {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 14px;
-    }
-</style>
-

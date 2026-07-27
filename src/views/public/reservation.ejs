@@ -1,29 +1,46 @@
-<section class="card">
-    <h2>Reservation #<%= reservation.id %></h2>
-    <p><strong>Status:</strong> <%= reservation.status %></p>
-    <p><strong>Guest:</strong> <%= reservation.customer_name %> (<%= reservation.customer_email || '—' %>)</p>
-    <p><strong>Room:</strong> <%= reservation.room_number %> — <%= reservation.room_type %></p>
-    <p><strong>Dates:</strong> <%= reservation.check_in %> → <%= reservation.check_out %></p>
-    <p><strong>Payment:</strong> <%= reservation.payment_status || 'submitted' %> <%= reservation.payment_txn_id ? '(' + reservation.payment_txn_id + ')' : '' %></p>
-    <% if (reservation.payment_proof_path) { %>
-        <div class="card" style="margin:12px 0;">
-            <div class="row"><span>Transaction ID</span><strong><%= reservation.payment_txn_id || '—' %></strong></div>
-            <div style="margin-top:8px">
-                <img src="<%= reservation.payment_proof_path %>" alt="Payment proof" style="max-width:100%; border-radius:8px; border:1px solid var(--border)">
+<section class="grid two">
+    <article class="card">
+        <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+            <div>
+                <div class="badge badge-info">Reservation #<%= reservation.id %></div>
+                <h2 style="margin:12px 0 8px;">Booking status overview</h2>
             </div>
+            <span class="badge <%= reservation.status === 'checked_in' ? 'badge-success' : reservation.status === 'booked' ? 'badge-warning' : reservation.status === 'checked_out' ? 'badge-info' : 'badge-danger' %>">
+                <%= reservation.status %>
+            </span>
         </div>
-    <% } %>
 
-    
+        <div class="row"><span>Booking reference</span><strong><%= reservation.booking_reference || 'Pending' %></strong></div>
+        <div class="row"><span>Guest</span><strong><%= reservation.customer_name %></strong></div>
+        <div class="row"><span>Contact</span><strong><%= reservation.customer_email || reservation.customer_phone || 'Not provided' %></strong></div>
+        <div class="row"><span>Room</span><strong>Room <%= reservation.room_number %> · <%= reservation.room_type %></strong></div>
+        <div class="row"><span>Stay dates</span><strong><%= reservation.check_in %> to <%= reservation.check_out %></strong></div>
+        <div class="row"><span>Payment review</span><strong><%= reservation.payment_status || 'submitted' %></strong></div>
+        <div class="row"><span>Transaction ID</span><strong><%= reservation.payment_txn_id || 'Pending upload' %></strong></div>
 
-    <% if (reservation.status === 'booked') { %>
-        <form method="post" action="/reservation/<%= reservation.id %>/cancel">
-            <button class="btn btn-ghost" type="submit">Cancel Reservation</button>
-        </form>
-    <% } %>
-    <p style="margin-top:12px">
-        <a class="btn" href="/">Back to Home</a>
-    </p>
+        <div class="panel" style="margin-top:18px;">
+            <strong>Next step</strong>
+            <p class="muted" style="margin-bottom:0;">This booking remains under manual verification until payment is cross-checked. After confirmation, you can send the final guest email outside the app.</p>
+        </div>
+
+        <div class="form-inline" style="margin-top:18px;">
+            <% if (reservation.status === 'booked') { %>
+                <form method="post" action="/reservation/<%= reservation.id %>/cancel">
+                    <button class="btn btn-ghost" type="submit">Cancel reservation</button>
+                </form>
+            <% } %>
+            <a class="btn" href="/">Back to home</a>
+        </div>
+    </article>
+
+    <aside class="card">
+        <h3>Payment proof</h3>
+        <% if (reservation.payment_proof_path) { %>
+            <img src="<%= reservation.payment_proof_path %>" alt="Payment proof" style="max-width:100%; border-radius:18px; border:1px solid var(--border);">
+        <% } else { %>
+            <p class="muted">No payment proof uploaded yet.</p>
+        <% } %>
+    </aside>
 </section>
 
 

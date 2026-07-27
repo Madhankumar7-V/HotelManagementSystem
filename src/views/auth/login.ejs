@@ -1,18 +1,18 @@
-<section class="card">
-    <h2>Staff Login</h2>
+<section class="card" style="max-width: 560px; margin: 40px auto;">
+    <div class="badge badge-warning">Staff Portal</div>
+    <h2 style="margin-bottom:8px;">Staff login</h2>
+    <p class="muted" style="margin-bottom:24px;">Access admin and reception workflows for manual payment confirmation, arrivals, departures, and service requests.</p>
     <% if (typeof error !== 'undefined') { %>
-        <p class="error"><%= error %></p>
+        <div class="panel error" style="margin-bottom:16px; border-color: rgba(225, 29, 72, 0.3);"><%= error %></div>
     <% } %>
     <form method="post" action="/auth/login" class="form-grid">
         <label>Username
-            <input name="username" required>
+            <input name="username" required autocomplete="username">
         </label>
         <label>Password
-            <input name="password" type="password" required>
+            <input name="password" type="password" required autocomplete="current-password">
         </label>
         <button class="btn" type="submit">Login</button>
     </form>
-    <p class="muted">Default accounts: admin/admin123, reception/reception123</p>
+    <p class="muted">Default accounts remain available for first-time setup: `admin/admin123` and `reception/reception123`.</p>
 </section>
-
-

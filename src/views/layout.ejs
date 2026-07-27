@@ -1,45 +1,94 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> · MGS HOTEL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title><%= title %> · <%= appConfig.hotelName %></title>
     <link rel="stylesheet" href="/static/css/base.css">
 </head>
 <body>
-    <header class="topbar">
-        <a class="brand" href="/">MGS HOTEL</a>
-        <nav class="nav">
-            <a href="/">Browse</a>
-            <a href="/book">Book</a>
-            <% if (session && session.customer) { %>
-                <a href="/customer/dashboard">My Reservations</a>
-                <span class="muted">Welcome, <%= session.customer.name %></span>
-                <form method="post" action="/customer/logout" style="display:inline">
-                    <button class="btn btn-ghost">Logout</button>
-                </form>
-            <% } else if (session && session.user) { %>
-                <% if (session.user.role === 'admin') { %>
-                    <a href="/admin">Admin</a>
-                <% } %>
-                <a href="/reception">Reception</a>
-                <form method="post" action="/auth/logout" style="display:inline">
-                    <button class="btn btn-ghost">Logout (<%= session.user.name %>)</button>
-                </form>
-            <% } else { %>
-                <a href="/customer/login">Customer Login</a>
-                <a href="/customer/register">Register</a>
-                <a href="/auth/login">Staff Login</a>
-            <% } %>
-        </nav>
+    <script>
+        (function () {
+            var storedTheme = localStorage.getItem('hotel-theme');
+            if (storedTheme) {
+                document.documentElement.setAttribute('data-theme', storedTheme);
+            }
+        })();
+    </script>
+
+    <header class="site-header">
+        <div class="topbar">
+            <a class="brand" href="/">
+                <span class="brand-mark">MH</span>
+                <span class="brand-text">
+                    <strong><%= appConfig.hotelName %></strong>
+                    <small><%= appConfig.hotelTagline %></small>
+                </span>
+            </a>
+            <div class="nav-shell">
+                <button
+                    class="nav-toggle"
+                    id="nav-toggle"
+                    type="button"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                    aria-controls="site-nav"
+                >
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                </button>
+                <nav class="nav" id="site-nav">
+                    <a href="/">Home</a>
+                    <a href="/book">Book</a>
+                    <% if (session && session.customer) { %>
+                        <a href="/customer/dashboard">My Reservations</a>
+                        <span class="muted nav-greeting">Hi, <%= session.customer.name %></span>
+                        <form method="post" action="/customer/logout" class="nav-form">
+                            <button class="btn btn-ghost btn-block-mobile" type="submit">Logout</button>
+                        </form>
+                    <% } else if (session && session.user) { %>
+                        <% if (session.user.role === 'admin') { %>
+                            <a href="/admin">Admin</a>
+                        <% } %>
+                        <a href="/reception">Reception</a>
+                        <form method="post" action="/auth/logout" class="nav-form">
+                            <button class="btn btn-ghost btn-block-mobile" type="submit">Logout (<%= session.user.name %>)</button>
+                        </form>
+                    <% } else { %>
+                        <a href="/customer/login">Customer Login</a>
+                        <a href="/customer/register">Register</a>
+                        <a href="/auth/login">Staff Login</a>
+                    <% } %>
+                </nav>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+                    <span class="theme-toggle__icon">◐</span>
+                    <span id="theme-toggle-label">Theme</span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <main class="container">
+    <main class="container page-shell">
         <%- body %>
     </main>
 
-    <footer class="footer">© <%= new Date().getFullYear() %> MGS HOTEL</footer>
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>
+                <strong><%= appConfig.hotelName %></strong>
+                <p class="muted"><%= appConfig.hotelAddress %></p>
+            </div>
+            <div class="footer-meta">
+                <a href="tel:<%= appConfig.hotelPhone %>"><%= appConfig.hotelPhone %></a>
+                <a href="mailto:<%= appConfig.hotelEmail %>"><%= appConfig.hotelEmail %></a>
+                <span>© <%= new Date().getFullYear() %></span>
+            </div>
+        </div>
+    </footer>
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/mobile-nav.js"></script>
 </body>
 </html>
-
-

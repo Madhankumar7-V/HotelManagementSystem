@@ -6,8 +6,10 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const dayjs = require('dayjs');
 const fs = require('fs');
+const pgSession = require('connect-pg-simple')(session);
 
-const { getDb } = require('./src/db');
+const { config } = require('./src/config');
+const { getDb, initDb } = require('./src/db');
 
 const app = express();
 
@@ -24,15 +26,24 @@ app.use(methodOverride('_method'));
 app.use(morgan('dev'));
 app.use(
 	session({
-		secret: 'replace-this-secret',
+		store: new pgSession({
+			pool: getDb(),
+			tableName: 'session',
+			createTableIfMissing: true,
+		}),
+		secret: config.sessionSecret,
 		resave: false,
 		saveUninitialized: false,
-		cookie: { maxAge: 1000 * 60 * 60 * 8 },
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 24 * 7,
+			httpOnly: true,
+			sameSite: 'lax',
+			secure: config.isProduction,
+		},
 	})
 );
 app.use('/static', express.static(path.join(__dirname, 'src', 'public')));
-// uploads (payment proofs)
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = config.uploadDir;
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use('/uploads', express.static(uploadsDir));
 
@@ -40,6 +51,7 @@ app.use('/uploads', express.static(uploadsDir));
 app.use((req, res, next) => {
 	res.locals.session = req.session;
 	res.locals.now = () => dayjs();
+	res.locals.appConfig = config;
 	next();
 });
 
@@ -61,13 +73,31 @@ app.use((req, res) => {
 	res.status(404).render('404', { title: 'Not Found' });
 });
 
-const PORT = process.env.PORT || 3000;
-
-// Ensure DB initialized before start
-getDb();
-
-app.listen(PORT, () => {
-	console.log(`Server running on http://localhost:${PORT}`);
+app.use((err, req, res, next) => {
+	console.error(err);
+	if (res.headersSent) return next(err);
+	return res.status(500).render('404', {
+		title: 'Server Error',
+	});
 });
 
+const initPromise = initDb();
 
+app.use((req, res, next) => {
+	initPromise.then(() => next()).catch(next);
+});
+
+if (require.main === module) {
+	initPromise
+		.then(() => {
+			app.listen(config.port, () => {
+				console.log(`Server running on http://localhost:${config.port}`);
+			});
+		})
+		.catch((error) => {
+			console.error('Failed to initialize database', error);
+			process.exit(1);
+		});
+}
+
+module.exports = app;

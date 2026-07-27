@@ -1,18 +1,21 @@
 <section class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h2 style="margin: 0;">My Reservations</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 12px; flex-wrap: wrap;">
+        <div>
+            <div class="badge badge-info">Guest Dashboard</div>
+            <h2 style="margin: 12px 0 0;">My reservations</h2>
+        </div>
         <span class="muted">Welcome, <%= customer.name %></span>
     </div>
 
     <% if (!reservations || reservations.length === 0) { %>
-        <div style="text-align: center; padding: 40px;">
+        <div class="panel" style="text-align: center; padding: 40px;">
             <p class="muted" style="font-size: 18px; margin-bottom: 16px;">No reservations yet</p>
             <a href="/book" class="btn">Book a Room</a>
         </div>
     <% } else { %>
         <div style="display: grid; gap: 16px;">
             <% reservations.forEach(r => { %>
-                <div class="card" style="background: rgba(106, 160, 255, 0.05); border: 1px solid var(--border);">
+                <div class="panel">
                     <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 16px;">
                         <div style="flex: 1; min-width: 250px;">
                             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
@@ -69,8 +72,8 @@
 </section>
 
 <!-- Service Request Modal -->
-<div id="serviceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="card" style="max-width: 500px; width: 90%; margin: 20px;">
+<div id="serviceModal" class="modal-backdrop">
+    <div class="card modal-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0;">Request Service</h3>
             <button onclick="closeServiceModal()" style="background: transparent; border: none; color: var(--text); font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px;">×</button>
@@ -97,38 +100,14 @@
     </div>
 </div>
 
-<style>
-    .badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-    .badge-success { background: rgba(94, 234, 212, 0.2); color: var(--accent); }
-    .badge-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-    .badge-danger { background: rgba(251, 113, 133, 0.2); color: var(--danger); }
-    .badge-info { background: rgba(106, 160, 255, 0.2); color: var(--primary); }
-    textarea {
-        background: #0b1220;
-        color: var(--text);
-        border: 1px solid var(--border);
-        padding: 10px;
-        border-radius: 10px;
-        font-family: inherit;
-        resize: vertical;
-        width: 100%;
-    }
-</style>
-
 <script>
 function showServiceRequest(reservationId) {
     document.getElementById('service_reservation_id').value = reservationId;
-    document.getElementById('serviceModal').style.display = 'flex';
+    document.getElementById('serviceModal').classList.add('is-open');
 }
 
 function closeServiceModal() {
-    document.getElementById('serviceModal').style.display = 'none';
+    document.getElementById('serviceModal').classList.remove('is-open');
     document.querySelector('#serviceModal form').reset();
 }
 </script>
