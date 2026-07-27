@@ -17,8 +17,13 @@ function envFirst(names, fallback = '') {
 const config = {
 	port: Number(env('PORT', 3000)),
 	nodeEnv: env('NODE_ENV', 'development'),
-	databaseUrl: env('DATABASE_URL'),
 	sessionSecret: env('SESSION_SECRET', 'change-this-session-secret'),
+	supabaseUrl: envFirst(['SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL', 'VITE_SUPABASE_URL']),
+	supabaseServiceRoleKey: envFirst([
+		'SUPABASE_SERVICE_ROLE_KEY',
+		'SUPABASE_SERVICE_KEY',
+		'SUPABASE_KEY',
+	]),
 	hotelName: env('HOTEL_NAME', 'Madhan Hotel'),
 	hotelTagline: env('HOTEL_TAGLINE', 'Premium comfort stays, thoughtfully hosted.'),
 	hotelPhone: env('HOTEL_PHONE', '9384180232'),
@@ -31,6 +36,6 @@ const config = {
 		: path.join(__dirname, '..', 'uploads'),
 };
 
-config.isProduction = config.nodeEnv === 'production';
+config.isProduction = config.nodeEnv === 'production' || Boolean(process.env.VERCEL);
 
 module.exports = { config };

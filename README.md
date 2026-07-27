@@ -1,85 +1,58 @@
 # Madhan Hotel Booking Platform
 
-An Express + EJS hotel booking site upgraded for a more professional guest flow with:
+Express + EJS hotel booking site backed by **Supabase**.
 
-- Supabase Postgres as the primary database
-- Persistent login sessions stored in Postgres
-- Light and dark theme switching
-- Manual UPI QR payment submission with transaction ID verification
-- Customer, reception, and admin dashboards
+## Features
 
-## Tech Stack
+- Guest registration / persistent cookie sessions
+- Room browsing and booking with UPI QR + transaction ID verification
+- Admin payment confirmation and room/staff management
+- Reception check-in / check-out and service requests
+- Light / dark theme + mobile-friendly UI
 
-- Node.js and Express
-- EJS with `express-ejs-layouts`
-- Supabase Postgres via `pg`
-- Session persistence with `express-session` and `connect-pg-simple`
-- File uploads with `multer`
+## 1. Create tables in Supabase
 
-## Setup
+1. Open **Supabase Dashboard → SQL Editor**
+2. Paste and run the full file: [`supabase/schema.sql`](supabase/schema.sql)
+3. Confirm tables exist: `rooms`, `staff`, `customers`, `reservations`, `service_requests`
 
-1. Install dependencies
+Seed logins after schema run:
 
-```bash
-npm install
-```
+- Admin: `admin` / `admin123`
+- Reception: `reception` / `reception123`
 
-2. Copy `.env.example` to `.env` and fill in your real values
+## 2. Vercel environment variables
 
-Required values:
-
-- `DATABASE_URL`: your Supabase Postgres connection string
-- `SESSION_SECRET`: a long random secret
-- `VITE_UPI_ID` and `VITE_UPI_NAME` (preferred on Vercel)
-- Hotel branding/contact fields
-
-### Vercel environment variables
-
-Add these in **Vercel → Project → Settings → Environment Variables**:
-
-| Variable | Example |
-|----------|---------|
-| `DATABASE_URL` | Supabase Postgres connection string |
-| `SESSION_SECRET` | long random string |
-| `NODE_ENV` | `production` |
+| Variable | Where to get it |
+|----------|-----------------|
+| `SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API → `service_role` key (secret) |
+| `SESSION_SECRET` | Any long random string |
 | `HOTEL_NAME` | Madhan Hotel |
 | `HOTEL_TAGLINE` | Premium comfort stays, thoughtfully hosted. |
 | `HOTEL_PHONE` | 9384180232 |
 | `HOTEL_EMAIL` | damnnwhosthis@gmail.com |
 | `HOTEL_ADDRESS` | Chennai, Tamil Nadu |
-| `VITE_UPI_ID` | yourname@ybl |
+| `VITE_UPI_ID` | Your UPI ID |
 | `VITE_UPI_NAME` | Madhan Hotel |
 
-The app reads `VITE_UPI_ID` / `VITE_UPI_NAME` first, then falls back to `UPI_ID` / `UPI_PAYEE_NAME` for local development.
+> Use the **service_role** key only on the server (Vercel env). Never expose it in frontend code.
 
-3. Start the app
+## 3. Local run
 
 ```bash
+npm install
+cp .env.example .env
+# fill SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
 npm run dev
-# or
-npm start
 ```
 
-4. Open `http://localhost:3000`
+## 4. Deploy
 
-On first boot, the app creates its schema and seeds default staff accounts:
+Push to GitHub and deploy on Vercel. Ensure env vars are set for **Production**, then redeploy.
 
-- Admin: `admin / admin123`
-- Receptionist: `reception / reception123`
+## Notes
 
-## Booking and Payment Flow
-
-- Guests must create an account before booking
-- Sessions persist in Postgres so users do not need to log in repeatedly after server restarts
-- Guests pay through the generated UPI QR / deep link
-- Guests upload payment proof and submit a transaction ID
-- Admin manually confirms payment and booking
-- Final confirmation emails can be sent manually outside the app for now
-
-## Deployment Notes
-
-- Use a production Supabase connection string in `DATABASE_URL`
-- Set `NODE_ENV=production` on Vercel (usually automatic)
-- Set `VITE_UPI_ID` and `VITE_UPI_NAME` for UPI QR payments
-- Replace default staff passwords immediately after first deployment
-- On Vercel, payment proof uploads use temporary storage (`/tmp`); for persistent proofs, add Supabase Storage later
+- Old SQLite / direct Postgres pool backend has been removed
+- Sessions use signed cookies (works on Vercel serverless)
+- Payment proofs on Vercel use temporary `/tmp` storage; move to Supabase Storage later if needed
